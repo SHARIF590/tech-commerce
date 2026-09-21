@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { LIVE_SALES_STREAM } from '../data/products'
 import { useRouter } from '../context/RouterContext'
+import { resolveAssetUrl } from '../utils/assets'
 
 export default function LiveSaleToast() {
   const { navigate } = useRouter()
@@ -98,7 +99,7 @@ export default function LiveSaleToast() {
       {/* Product Image Thumbnail */}
       <div className="sale-toast-art">
         <img
-          src={currentSale.image || '/posters/canva-pro.jpg'}
+          src={resolveAssetUrl(currentSale.image || '/posters/canva-pro.jpg')}
           alt={currentSale.product}
           className="sale-toast-img"
           loading="lazy"

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { resolveAssetUrl } from '../utils/assets'
 
 export default function ProductIcon({
   type,
@@ -21,14 +22,21 @@ export default function ProductIcon({
       type.startsWith('http://') ||
       type.startsWith('https://') ||
       type.startsWith('blob:') ||
-      type.startsWith('/'))
+      type.startsWith('/') ||
+      type.includes('.png') ||
+      type.includes('.jpg') ||
+      type.includes('.jpeg') ||
+      type.includes('.svg') ||
+      type.includes('.webp'))
       ? type
       : null)
 
-  if (customSrc && !hasError) {
+  const resolvedSrc = customSrc ? resolveAssetUrl(customSrc) : null
+
+  if (resolvedSrc && !hasError) {
     return (
       <img
-        src={customSrc}
+        src={resolvedSrc}
         alt="Product visual"
         className={className}
         style={{

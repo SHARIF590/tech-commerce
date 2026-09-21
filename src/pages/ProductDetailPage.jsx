@@ -4,6 +4,7 @@ import { useRouter } from '../context/RouterContext'
 import { useCart } from '../context/CartContext'
 import ProductIcon from '../components/ProductIcon'
 import ProductCard from '../components/ProductCard'
+import { resolveAssetUrl } from '../utils/assets'
 
 export default function ProductDetailPage() {
   const { route, navigate } = useRouter()
@@ -208,7 +209,7 @@ export default function ProductDetailPage() {
               {product.category}
             </span>
             {logoImage && (
-              <img src={logoImage} alt="Logo" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+              <img src={resolveAssetUrl(logoImage)} alt="Logo" style={{ width: 22, height: 22, objectFit: 'contain' }} />
             )}
           </div>
 

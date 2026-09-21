@@ -8,6 +8,7 @@ import {
   X,
 } from 'lucide-react'
 import ProductIcon from '../ProductIcon'
+import { resolveAssetUrl } from '../../utils/assets'
 
 // Compress and convert uploaded image into an ultra-fast base64 data URL
 const processUploadedImage = (file) => {
@@ -960,7 +961,7 @@ export default function ProductsManager({
                     {formData.image && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
                         <img
-                          src={formData.image}
+                          src={resolveAssetUrl(formData.image)}
                           alt="preview"
                           style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff' }}
                         />
