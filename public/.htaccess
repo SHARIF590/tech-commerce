@@ -1,0 +1,78 @@
+# ==============================================================================
+# SHOPNO IT - PRODUCTION SECURITY & FIREWALL CONFIGURATION (LITESPEED / APACHE)
+# ==============================================================================
+
+# 1. PREVENT DIRECTORY LISTING
+Options -Indexes -MultiViews
+
+# 2. FORCE SECURE HTTPS CONNECTION
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# 3. BLOCK ACCESS TO SENSITIVE FILES & DIRECTORIES
+<FilesMatch "(^\.|\.json$|\.lock$|\.md$|\.py$|\.txt$|\.config\.js$|package\.json|package-lock\.json)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Allow public SVG icons and manifest if needed
+<FilesMatch "(favicon\.svg|icons\.svg)">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# 4. HARDENED HTTP SECURITY HEADERS
+<IfModule mod_headers.c>
+    # Prevent Clickjacking (iframe embedding)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Prevent MIME Sniffing attacks
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Cross-site Scripting filter for legacy browsers
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Privacy preservation on referrers
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Restrict device APIs
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # HTTP Strict Transport Security (HSTS) - 1 Year
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+    # Content Security Policy (CSP)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; connect-src 'self' https:; frame-ancestors 'self';"
+</IfModule>
+
+# 5. BLOCK COMMON EXPLOIT QUERY PATTERNS & BOT INJECTIONS
+<IfModule mod_rewrite.c>
+    RewriteCond %{QUERY_STRING} (eval\(|document\.cookie|base64_decode|GLOBALS|_REQUEST) [NC,OR]
+    RewriteCond %{QUERY_STRING} (<|%3C).*script.*(>|%3E) [NC,OR]
+    RewriteCond %{QUERY_STRING} (javascript:|vbscript:) [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
+
+# 6. SINGLE PAGE APPLICATION (SPA) CLIENT-SIDE ROUTING
+# Ensures refreshing /shop, /cart, /checkout, /admin routes back to index.html without 404
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</IfModule>
